@@ -1,0 +1,26 @@
+{
+  "name": "todolist",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start":"webpack",
+    "build":"webpack -p",
+    "dev":"webpack-dev-server --open",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChrisWen960216/ReactTodoList.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ChrisWen960216/ReactTodoList/issues"
+  },
+  "homepage": "https://github.com/ChrisWen960216/ReactTodoList#readme",
+  "devDependencies": {
+    "webpack": "^3.2.0",
+    "webpack-dev-server": "^2.5.1"
+  }
+}
