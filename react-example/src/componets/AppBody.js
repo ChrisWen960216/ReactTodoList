@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 //import TodoInput from './TodoInput.js';
 import TodoItem from './todolist/TodoItem.js';
+import UserDialog from './uerDialog.js';
 import '../css/button.css';
 import '../css/Body.css';
 
@@ -98,6 +99,7 @@ export default class AppBody extends Component {
               <ul>
                 { todo }
               </ul>
+              <UserDialog/>
             </div>
 
         )
