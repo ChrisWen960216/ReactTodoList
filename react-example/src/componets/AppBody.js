@@ -15,6 +15,7 @@ export default class AppBody extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            user: {},
             todos: [
                 {
                     id: 1,
@@ -28,6 +29,7 @@ export default class AppBody extends Component {
         this.onPress = this.onPress.bind(this);
         this.onToggle = this.onToggle.bind(this);
         this.onDelete = this.onDelete.bind(this);
+        this.onSingUp = this.onSignUp.bind(this);
     }
 
     onClick(e) {
@@ -83,6 +85,11 @@ export default class AppBody extends Component {
         this.setState(this.state);
     }
 
+    onSignUp(user) {
+        this.state.user = user
+        this.setState(this.state)
+    }
+
     render() {
         let todo = this.state.todos.filter((item) => !item.deleted).map((item, index) => {
             return (
@@ -94,12 +101,13 @@ export default class AppBody extends Component {
 
         return (
             <div id='body'>
+              <h1>{ this.state.user.username || '我' }的待办</h1>
               <input type="text" ref='input' onKeyPress={ this.onPress } />
               <button className='button button-glow button-rounded button-small' onClick={ this.onClick }>提交</button>
               <ul>
                 { todo }
               </ul>
-              <UserDialog/>
+              <UserDialog onSingUp={ this.onSingUp } />
             </div>
 
         )
