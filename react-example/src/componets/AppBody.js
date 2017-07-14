@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 //import TodoInput from './TodoInput.js';
 import TodoItem from './todolist/TodoItem.js';
 import UserDialog from './uerDialog.js';
+import { getCurrentUser, signOut } from '../leanCloud.js';
 import '../css/button.css';
 import '../css/Body.css';
 
@@ -15,7 +16,7 @@ export default class AppBody extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: {},
+            user: getCurrentUser() || {},
             todos: [
                 {
                     id: 1,
@@ -30,10 +31,11 @@ export default class AppBody extends Component {
         this.onToggle = this.onToggle.bind(this);
         this.onDelete = this.onDelete.bind(this);
         this.onSingUp = this.onSignUp.bind(this);
+        this.onSignIn = this.onSignIn.bind(this);
+        this.onSignOut = this.onSignOut.bind(this);
     }
 
-    onClick(e) {
-        e.preventDefault();
+    onClick() {
         const node = this.refs.input;
         const text = node.value.trim();
         if (text === '') {
@@ -55,25 +57,10 @@ export default class AppBody extends Component {
 
     onPress(e) {
         if (e.key === "Enter") {
-            const node = this.refs.input;
-            const text = node.value.trim();
-            if (text === '') {
-                alert('不能为空！')
-            } else {
-                const newTodo = {
-                    id: idMaker(),
-                    text: text,
-                    completed: false,
-                    deleted: false
-                }
-                const newTodos = [newTodo, ...this.state.todos]
-                this.setState({
-                    todos: newTodos
-                })
-                node.value = '';
-            }
+            this.onClick();
         }
     }
+
 
     onToggle(e, todo) {
         todo.completed = !todo.completed;
@@ -86,8 +73,23 @@ export default class AppBody extends Component {
     }
 
     onSignUp(user) {
-        this.state.user = user
-        this.setState(this.state)
+        let stateCopy = JSON.parse(JSON.stringify(this.state));
+        stateCopy.user = user;
+        this.setState(stateCopy);
+    }
+
+    onSignIn(user) {
+        let stateCopy = JSON.parse(JSON.stringify(this.state));
+        stateCopy.user = user;
+        this.setState(stateCopy);
+    }
+
+    onSignOut(e) {
+        e.preventDefault();
+        signOut();
+        let stateCopy = JSON.parse(JSON.stringify(this.state));
+        stateCopy.user = '';
+        this.setState(stateCopy);
     }
 
     render() {
@@ -102,12 +104,13 @@ export default class AppBody extends Component {
         return (
             <div id='body'>
               <h1>{ this.state.user.username || '我' }的待办</h1>
+              { this.state.user.id ? <button type='submit' onClick={ this.onSignOut }>登出</button> : null }
               <input type="text" ref='input' onKeyPress={ this.onPress } />
               <button className='button button-glow button-rounded button-small' onClick={ this.onClick }>提交</button>
               <ul>
                 { todo }
               </ul>
-              <UserDialog onSingUp={ this.onSingUp } />
+              { this.state.user.id ? null : <UserDialog onSingUp={ this.onSingUp } onSignIn={ this.onSignIn } /> }
             </div>
 
         )
