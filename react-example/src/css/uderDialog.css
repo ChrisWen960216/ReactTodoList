@@ -21,14 +21,18 @@
     box-shadow: 0 0 1em hsla(0, 0%, 0%, 0.35);
 }
 
-.UserDialog>nav:first-child {
+.UserDialog .signInOrSignUp>nav:first-child {
     padding: 1em;
     margin-left: -2em;
 }
 
-.UserDialog>nav:first-child label {
+.UserDialog .signInOrSignUp>nav:first-child label {
     margin-left: 2em;
     cursor: pointer;
+}
+
+.UserDialog .signInOrSignUp>.panes {
+    padding: 0 1em 1em;
 }
 
 .UserDialog>.panes {
@@ -46,4 +50,19 @@
 
 .UserDialog form>.row.actions {
     padding-left: 4em;
+}
+
+.UserDialog form>.row.actions {
+    padding-left: 4em;
+    display: flex;
+    align-items: center;
+}
+
+.UserDialog form>.row.actions button {
+    margin-right: .5em;
+}
+
+.UserDialog button {
+    font: inherit;
+    padding: .2em;
 }
