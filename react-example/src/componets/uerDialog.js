@@ -83,8 +83,7 @@ export default class UserDialog extends Component {
   }
 
   //执行 找回密码
-  resetPassword(e) {
-    e.preventDefault();
+  resetPassword() {
     sendPasswordResetEmail(this.state.formData.email);
   }
 

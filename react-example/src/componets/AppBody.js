@@ -1,16 +1,10 @@
 import React, { Component } from 'react';
 import TodoItem from './todolist/TodoItem.js';
 import UserDialog from './uerDialog.js';
-import { getCurrentUser, signOut } from '../leanCloud.js';
+import { getCurrentUser, signOut, TodoModel } from '../leanCloud.js';
 import '../css/button.css';
 import '../css/Body.css';
 
-//简易的 ID 生成器 为了让每一个 todoitem 有一个独一无二的 key(react强制要求)
-let id = 1;
-function idMaker() {
-    id += 1
-    return id
-}
 
 export default class AppBody extends Component {
     constructor(props) {
@@ -18,15 +12,17 @@ export default class AppBody extends Component {
         this.state = {
             //设置初始 user 调用对应的 API函数
             user: getCurrentUser() || {},
-            todos: [
-                {
-                    id: 1,
-                    text: '用户没有登录，该事件为默认事件',
-                    completed: false,
-                    deleted: false
-                }
-            ]
+            todos: []
+        };
+        let user = getCurrentUser();
+        if (user) {
+            TodoModel.getByUser(user, (todos) => {
+                let stateCopy = JSON.parse(JSON.stringify(this.state));
+                stateCopy.todos = todos;
+                this.setState(stateCopy);
+            })
         }
+
         this.onClick = this.onClick.bind(this);
         this.onPress = this.onPress.bind(this);
         this.onToggle = this.onToggle.bind(this);
@@ -43,16 +39,21 @@ export default class AppBody extends Component {
         if (text === '') {
             alert('不能为空！')
         } else {
-            const newTodo = {
-                id: idMaker(),
+            let newTodo = {
                 text: text,
                 completed: false,
                 deleted: false
             }
-            const newTodos = [newTodo, ...this.state.todos]
-            this.setState({
-                todos: newTodos
+            TodoModel.create(newTodo, (id) => {
+                newTodo.id = id
+                let newTodos = [newTodo, ...this.state.todos]
+                this.setState({
+                    todos: newTodos
+                })
+            }, (error) => {
+                console.log('Error!', error);
             })
+
             node.value = '';
         }
     }
@@ -66,14 +67,22 @@ export default class AppBody extends Component {
 
     //切换todo完成/未完成
     onToggle(e, todo) {
+        let oldCompleted = todo.completed;
         todo.completed = !todo.completed;
-        this.setState(this.state);
+        TodoModel.update(todo, () => {
+            this.setState(this.state)
+        }, (error) => {
+            todo.completed = oldCompleted;
+            this.setState(this.state)
+        })
     }
 
     //删除事件，并不是真的删除，只是设为不可见。后续版本会优化
     onDelete(e, todo) {
-        todo.deleted = true;
-        this.setState(this.state);
+        TodoModel.destory(todo.id, () => {
+            todo.deleted = true;
+            this.setState(this.state);
+        })
     }
 
     //下面的3个函数将间接修改（使用 stateCopy )组件state，提供不同的状态
@@ -89,11 +98,10 @@ export default class AppBody extends Component {
         this.setState(stateCopy);
     }
 
-    onSignOut(e) {
-        e.preventDefault();
+    onSignOut() {
         signOut();
         let stateCopy = JSON.parse(JSON.stringify(this.state));
-        stateCopy.user = '';
+        stateCopy.user = {};
         this.setState(stateCopy);
     }
 
