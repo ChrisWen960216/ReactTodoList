@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-//import TodoInput from './TodoInput.js';
 import TodoItem from './todolist/TodoItem.js';
 import UserDialog from './uerDialog.js';
 import { getCurrentUser, signOut } from '../leanCloud.js';
 import '../css/button.css';
 import '../css/Body.css';
 
+//简易的 ID 生成器 为了让每一个 todoitem 有一个独一无二的 key(react强制要求)
 let id = 1;
 function idMaker() {
     id += 1
@@ -16,11 +16,12 @@ export default class AppBody extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            //设置初始 user 调用对应的 API函数
             user: getCurrentUser() || {},
             todos: [
                 {
                     id: 1,
-                    text: 'This is the first TodoItem',
+                    text: '用户没有登录，该事件为默认事件',
                     completed: false,
                     deleted: false
                 }
@@ -35,6 +36,7 @@ export default class AppBody extends Component {
         this.onSignOut = this.onSignOut.bind(this);
     }
 
+    //新增加一个TodoItem
     onClick() {
         const node = this.refs.input;
         const text = node.value.trim();
@@ -55,23 +57,26 @@ export default class AppBody extends Component {
         }
     }
 
+    //输入框回车事件，调用上面的函数，避免重复
     onPress(e) {
         if (e.key === "Enter") {
             this.onClick();
         }
     }
 
-
+    //切换todo完成/未完成
     onToggle(e, todo) {
         todo.completed = !todo.completed;
         this.setState(this.state);
     }
 
+    //删除事件，并不是真的删除，只是设为不可见。后续版本会优化
     onDelete(e, todo) {
         todo.deleted = true;
         this.setState(this.state);
     }
 
+    //下面的3个函数将间接修改（使用 stateCopy )组件state，提供不同的状态
     onSignUp(user) {
         let stateCopy = JSON.parse(JSON.stringify(this.state));
         stateCopy.user = user;

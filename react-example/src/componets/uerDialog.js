@@ -17,6 +17,7 @@ export default class UserDialog extends Component {
 
       }
     };
+    //绑定一系列的函数，统一到constructor函数中，便于阅读
     this.signUp = this.signUp.bind(this);
     this.signIn = this.signIn.bind(this);
     this.showForgotPassword = this.showForgotPassword.bind(this);
@@ -25,8 +26,7 @@ export default class UserDialog extends Component {
     this.resetPassword = this.resetPassword.bind(this);
   }
 
-
-
+  //注册操作函数
   signUp(e) {
     e.preventDefault();
     let {email, username, password} = this.state.formData
@@ -45,6 +45,8 @@ export default class UserDialog extends Component {
     }
     signUp(email, username, password, success, error)
   }
+
+  //登录操作函数
   signIn(e) {
     e.preventDefault();
     let {username, password} = this.state.formData;
@@ -61,9 +63,11 @@ export default class UserDialog extends Component {
           break;
       }
     }
+    //调用API，并非是自身函数。只是同名，signIn 由上面 import 进来
     signIn(username, password, success, error)
-
   }
+
+  //修改 state 中对应的函数值，直接修改为鼠标动作的目标函数值
   changeFormData(key, e) {
     //深拷贝state状态，避免直接修改组件的state
     let stateCopy = JSON.parse(JSON.stringify(this.state));
@@ -71,12 +75,14 @@ export default class UserDialog extends Component {
     this.setState(stateCopy);
   }
 
+  //展示 忘记密码 面板
   showForgotPassword() {
     let stateCopy = JSON.parse(JSON.stringify(this.state));
     stateCopy.selectedTab = 'forgotPassword';
     this.setState(stateCopy);
   }
 
+  //执行 找回密码
   resetPassword(e) {
     e.preventDefault();
     sendPasswordResetEmail(this.state.formData.email);
