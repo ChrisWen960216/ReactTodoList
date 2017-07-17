@@ -22,13 +22,13 @@ export default class AppBody extends Component {
                 this.setState(stateCopy);
             })
         }
+        this.getTodos();
 
         this.onClick = this.onClick.bind(this);
         this.onPress = this.onPress.bind(this);
         this.onToggle = this.onToggle.bind(this);
         this.onDelete = this.onDelete.bind(this);
-        this.onSingUp = this.onSignUp.bind(this);
-        this.onSignIn = this.onSignIn.bind(this);
+        this.onSignUpOrSinIn = this.onSignUpOrSinIn.bind(this);
         this.onSignOut = this.onSignOut.bind(this);
     }
 
@@ -77,32 +77,38 @@ export default class AppBody extends Component {
         })
     }
 
-    //删除事件，并不是真的删除，只是设为不可见。后续版本会优化
+    getTodos() {
+        let loginUser = getCurrentUser();
+        if (loginUser) {
+            TodoModel.getByUser(loginUser, (todos) => {
+                let stateCopy = JSON.parse(JSON.stringify(this.state));
+                stateCopy.todos = todos;
+                this.setState(stateCopy);
+            })
+        }
+    }
+
+    //删除事件，并不是真的删除，只是设为不可见。
     onDelete(e, todo) {
-        TodoModel.destory(todo.id, () => {
+        TodoModel.destroy(todo.id, () => {
             todo.deleted = true;
             this.setState(this.state);
         })
     }
 
-    //下面的3个函数将间接修改（使用 stateCopy )组件state，提供不同的状态
-    onSignUp(user) {
-        let stateCopy = JSON.parse(JSON.stringify(this.state));
-        stateCopy.user = user;
-        this.setState(stateCopy);
+    //下面的2个函数将间接修改（使用 stateCopy )组件state，提供不同的状态
+    onSignUpOrSinIn(user) {
+        this.setState({
+            user: user
+        });
+        this.getTodos();
     }
-
-    onSignIn(user) {
-        let stateCopy = JSON.parse(JSON.stringify(this.state));
-        stateCopy.user = user;
-        this.setState(stateCopy);
-    }
-
     onSignOut() {
         signOut();
         let stateCopy = JSON.parse(JSON.stringify(this.state));
         stateCopy.user = {};
         this.setState(stateCopy);
+        this.getTodos();
     }
 
     render() {
@@ -114,17 +120,21 @@ export default class AppBody extends Component {
             )
         })
 
+        let body = <div id='body'>
+                     <h1>{ this.state.user.username || '我' }的待办</h1>
+                     { this.state.user.id ? <button type='submit' onClick={ this.onSignOut }>登出</button> : null }
+                     <input type="text" ref='input' onKeyPress={ this.onPress } />
+                     <button className='button button-glow button-rounded button-small' onClick={ this.onClick }>提交</button>
+                     <ul>
+                       { todo }
+                     </ul>
+                   </div>
+
         return (
-            <div id='body'>
-              <h1>{ this.state.user.username || '我' }的待办</h1>
-              { this.state.user.id ? <button type='submit' onClick={ this.onSignOut }>登出</button> : null }
-              <input type="text" ref='input' onKeyPress={ this.onPress } />
-              <button className='button button-glow button-rounded button-small' onClick={ this.onClick }>提交</button>
-              <ul>
-                { todo }
-              </ul>
-              { this.state.user.id ? null : <UserDialog onSingUp={ this.onSingUp } onSignIn={ this.onSignIn } /> }
+            <div>
+              { this.state.user.id ? body : <UserDialog onSingUp={ this.onSignUpOrSinIn } onSignIn={ this.onSignUpOrSinIn } /> }
             </div>
+
 
         )
 
